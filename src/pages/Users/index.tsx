@@ -21,7 +21,7 @@ import {
   Dialog,
   DialogContent,
 } from "@mui/material";
-import { Search, Edit, Visibility } from "@mui/icons-material";
+import { Search, Edit } from "@mui/icons-material";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { IUser } from "@/interfaces/models";
@@ -31,11 +31,11 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { useCreateUser, useUpdateUser, useUsers } from "@/network/user";
 
-const hasPermission = (klk: string) => true;
+const hasPermission = (klk: string) => !!klk;
 
 const Users = () => {
   const [page, setPage] = useState<number>(1);
-  const [role, setRole] = useState<any>();
+  const [role] = useState<any>();
 
   const [searchText, setSearchText] = useState<string>();
 

@@ -27,8 +27,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-const hasPermission = (klk: string) => true;
-
 const drawerWidth = 240;
 const HomeLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
