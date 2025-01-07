@@ -27,24 +27,18 @@ import {
 import { Search, Edit } from "@mui/icons-material";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { IUser } from "@/interfaces/models";
-import UserForm from "./Form";
-import { omit } from "lodash";
 import { useQueryClient } from "@tanstack/react-query";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  useCreateUser,
-  useRemoveUser,
-  useUpdateUser,
-  useUsers,
-} from "@/network/user";
 import useHasPermission from "@/hooks/useHasPermission";
+import ICustomer from "@/interfaces/models/ICustomer";
+import { useCreateCustomer, useCustomers, useRemoveCustomer, useUpdateCustomer } from "@/network/customer";
+import CustomerForm from "./Form";
+import { omit } from "lodash";
 
-const Users = () => {
+const Customers = () => {
   const [page, setPage] = useState<number>(1);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState<boolean>(false);
-  const [role] = useState<any>();
 
   const [searchText, setSearchText] = useState<string>();
 
@@ -56,38 +50,38 @@ const Users = () => {
     roleId?: string;
   }>();
 
-  const [selectedUser, setSelectedUser] = useState<IUser>();
+  const [selectedCustomer, setSelectedCustomer] = useState<ICustomer>();
 
-  const usersRequest = useUsers(
+  const customersRequest = useCustomers(
     { page: page!, pageSize: 10, ...filters },
     { initialData: { data: { data: [] } } }
   );
 
   const hasPermission = useHasPermission()
-  const createUserRequest = useCreateUser();
-  const updateUserRequest = useUpdateUser();
-  const removeUserRequest = useRemoveUser();
+  const createcustomerRequest = useCreateCustomer();
+  const updatecustomerRequest = useUpdateCustomer();
+  const removecustomerRequest = useRemoveCustomer();
   const queryClient = useQueryClient();
 
-  const userList = usersRequest.data?.data || [];
+  const customerList = customersRequest.data?.data || [];
 
-  const onEdit = (user: IUser) => {
-    setSelectedUser(user);
+  const onEdit = (customer: ICustomer) => {
+    setSelectedCustomer(customer);
     setShowForm(true);
   };
 
-  const onRemove = (user: IUser) => {
-    setSelectedUser(user);
+  const onRemove = (customer: ICustomer) => {
+    setSelectedCustomer(customer);
     setShowRemoveConfirm(true);
   };
 
   const onClose = () => {
-    setSelectedUser(undefined);
+    setSelectedCustomer(undefined);
     setShowForm(false);
   };
 
   const onRemoveClose = () => {
-    setSelectedUser(undefined);
+    setSelectedCustomer(undefined);
     setShowRemoveConfirm(false);
   };
 
@@ -96,29 +90,29 @@ const Users = () => {
     if (status === 1) isActive = true;
     if (status === 0) isActive = false;
 
-    setFilters({ searchText, isActive, roleId: role?.id });
+    setFilters({ searchText, isActive });
   };
 
-  const onSave = async (payload: UserForm) => {    
+  const onSave = async (payload: CustomerForm) => {
     const params = {
       ...omit(payload, ["status"]),
-      id: selectedUser?.id,
+      id: selectedCustomer?.id,
       isActive: !!payload.status,
-    } as unknown as IUser;
+    } as unknown as ICustomer;
 
-    if (selectedUser) await updateUserRequest.mutateAsync(params);
-    else await createUserRequest.mutateAsync(params);
+    if (selectedCustomer) await updatecustomerRequest.mutateAsync(params);
+    else await createcustomerRequest.mutateAsync(params);
 
-    queryClient.invalidateQueries({ queryKey: ["fetchUsers"] });
+    queryClient.invalidateQueries({ queryKey: ["fetchCustomers"] });
     toast.success("Usuario guardado exitosamente");
     onClose();
   };
 
   const onConfirmRemove = async () => {
-    await removeUserRequest.mutateAsync(selectedUser!.id);
+    await removecustomerRequest.mutateAsync(selectedCustomer!.id);
 
     onRemoveClose();
-    queryClient.invalidateQueries({ queryKey: ["fetchUsers"] });
+    queryClient.invalidateQueries({ queryKey: ["fetchCustomers"] });
     toast.success("Usuario eliminado exitosamente");
     onRemoveClose();
   };
@@ -132,11 +126,11 @@ const Users = () => {
         alignItems={{ md: "center", xs: "flex-start" }}
       >
         <Typography color="info" fontWeight="bold" variant="h4">
-          Administracion de usuarios
+          Administracion de Clientes
         </Typography>
-        {hasPermission("users.create") && (
+        {hasPermission("customers.create") && (
           <Button onClick={() => setShowForm(true)} variant="contained">
-            Crear nuevo usuario
+            Crear nuevo cliente
           </Button>
         )}
       </Stack>
@@ -145,7 +139,7 @@ const Users = () => {
         <Grid2 size={{ xs: 13, md: 3 }}>
           <TextField
             label="Nombre"
-            placeholder="Ingrese nombre de usuario"
+            placeholder="Ingrese nombre de cliente"
             size="small"
             fullWidth
             value={searchText}
@@ -184,26 +178,30 @@ const Users = () => {
             <TableRow>
               <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
               <TableCell sx={{ fontWeight: "bold", maxWidth: 100 }}>
-                Rol
+                Email
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", maxWidth: 100 }}>
+                Telefono
               </TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Estatus</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {userList.map((user, index) => (
+            {customerList.map((customer, index) => (
               <TableRow key={index}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.role.name}</TableCell>
-                <TableCell>{user.isActive ? "Activo" : "Inactivo"}</TableCell>
+                <TableCell>{customer.name}</TableCell>
+                <TableCell>{customer.email}</TableCell>
+                <TableCell>{customer.phone}</TableCell>
+                <TableCell>{customer.isActive ? "Activo" : "Inactivo"}</TableCell>
                 <TableCell>
-                  {hasPermission("users.edit") && (
-                    <IconButton onClick={() => onEdit(user)}>
+                  {hasPermission("customers.edit") && (
+                    <IconButton onClick={() => onEdit(customer)}>
                       <Edit />
                     </IconButton>
                   )}
-                  {hasPermission("users.delete") && (
-                    <IconButton onClick={() => onRemove(user)}>
+                  {hasPermission("customers.delete") && (
+                    <IconButton onClick={() => onRemove(customer)}>
                       <DeleteIcon />
                     </IconButton>
                   )}
@@ -211,7 +209,7 @@ const Users = () => {
               </TableRow>
             ))}
 
-            {userList!.length === 0 && (
+            {customerList!.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} align="center">
                   <Typography variant="body1" color="textSecondary">
@@ -224,10 +222,10 @@ const Users = () => {
         </Table>
       </TableContainer>
 
-      {userList.length > 0 && (
+      {customerList.length > 0 && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <Pagination
-            count={usersRequest.data?.pageCount}
+            count={customersRequest.data?.pageCount}
             color="primary"
             page={page}
             onChange={(_, value) => setPage(value)}
@@ -237,11 +235,11 @@ const Users = () => {
 
       <Dialog open={showForm} fullWidth maxWidth="sm" onClose={onClose}>
         <DialogContent>
-          <UserForm
-            user={selectedUser}
+          <CustomerForm
+            customer={selectedCustomer}
             onCancel={onClose}
             onSave={onSave}
-            isLoading={createUserRequest.isPending}
+            isLoading={createcustomerRequest.isPending}
           />
         </DialogContent>
       </Dialog>
@@ -255,15 +253,15 @@ const Users = () => {
         <DialogTitle>Confirmar Eliminacion</DialogTitle>
         <Divider />
         <DialogContent>
-          <span>Esta seguro que desea eliminar este usuario?</span>
+          <span>Esta seguro que desea eliminar este cliente?</span>
         </DialogContent>
         <DialogActions>
           <Button onClick={onRemoveClose}>No</Button>
-          <Button disabled={createUserRequest.isPending} onClick={onConfirmRemove}>Si</Button>
+          <Button disabled={createcustomerRequest.isPending} onClick={onConfirmRemove}>Si</Button>
         </DialogActions>
       </Dialog>
     </Stack>
   );
 };
 
-export default Users;
+export default Customers;

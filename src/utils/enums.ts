@@ -10,3 +10,5 @@ export const roles: IRole[] = [
     name: "Autorizado",
   },
 ];
+
+export const accessTypeName = ['Entrada', 'Salida']

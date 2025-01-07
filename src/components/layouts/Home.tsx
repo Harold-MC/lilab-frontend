@@ -23,9 +23,15 @@ import { Outlet, useNavigate } from "react-router-dom";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useAuth } from "@/hooks/useAuth";
 import useLogout from "@/hooks/useLogout";
-import GroupIcon from '@mui/icons-material/Group';
-import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import GroupIcon from "@mui/icons-material/Group";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+
+const menuItems = [
+  { label: "Accesos", to: "/", icon: <AccessTimeIcon /> },
+  { label: "Clientes", to: "/customers", icon: <PeopleOutlineIcon /> },
+  { label: "Usuarios", to: "/users", icon: <GroupIcon /> },
+];
 
 const drawerWidth = 240;
 const HomeLayout: React.FC = () => {
@@ -52,18 +58,12 @@ const HomeLayout: React.FC = () => {
     <div>
       <Toolbar />
       <List>
-        <ListItemButton onClick={() => navigate("")}>
-          <ListItemIcon><GroupIcon /></ListItemIcon>
-          <ListItemText primary="Usuarios" />
-        </ListItemButton>
-        <ListItemButton onClick={() => navigate("")}>
-          <ListItemIcon><PeopleOutlineIcon /></ListItemIcon>
-          <ListItemText primary="Clientes" />
-        </ListItemButton>
-        <ListItemButton onClick={() => navigate("")}>
-          <ListItemIcon><AccessTimeIcon /></ListItemIcon>
-          <ListItemText primary="Accesos" />
-        </ListItemButton>
+        {menuItems.map((item) => (
+          <ListItemButton onClick={() => navigate(item.to)}>
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.label} />
+          </ListItemButton>
+        ))}
       </List>
     </div>
   );

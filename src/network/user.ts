@@ -34,6 +34,12 @@ export const useCreateUser = () => {
 
 export const useUpdateUser = () => {
   return useMutation({
-    mutationFn: (data: IUser) => http.post("/api/users", data),
+    mutationFn: (data: IUser) => http.put("/api/users", data),
+  });
+};
+
+export const useRemoveUser = () => {
+  return useMutation({
+    mutationFn: (data: string) => http.delete(`/api/users/${data}`),
   });
 };
